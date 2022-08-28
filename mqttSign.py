@@ -62,7 +62,7 @@ if __name__ == "__main__":
 #    client.connect(mqttBroker, 1883)
     client.subscribe("ledsign/#")
     print("subscribed")
-    run_test = RunText()
+    run_text = RunText()
    
     if (not run_text.process()):
         while(1):
