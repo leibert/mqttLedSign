@@ -14,6 +14,8 @@ client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
 
 
 def on_message(client, userdata, msg):
+    global line1
+    global line2
     print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
     topic = msg.topic
     print(topic)
@@ -43,9 +45,9 @@ def on_connect(client, userdata, flags, rc):
 
 
 class RunText(SampleBase):
-    global line1
-    global line2
-    
+    # global line1
+    # global line2
+
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
