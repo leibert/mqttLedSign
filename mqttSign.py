@@ -47,8 +47,7 @@ def on_message(client, userdata, msg):
     print(topic)
     if topic == "ledsign/line1":
         print("updating line")
-
-                line1 = msg.payload.decode()
+        line1 = msg.payload.decode()
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
