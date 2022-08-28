@@ -22,7 +22,7 @@ class RunText(SampleBase):
 
         while True:
             offscreen_canvas.Clear()
-            len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
+            # len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
             # pos -= 1
             # if (pos + len < 0):
             #     pos = offscreen_canvas.width
