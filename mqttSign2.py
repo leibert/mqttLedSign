@@ -5,14 +5,12 @@ from rgbmatrix import graphics
 import paho.mqtt.client as mqtt
 import time
 
-global line1 
-global line2 
+line1 = "Test Line 1"
+line2 = "Test Line 2"
 
 mqttBroker ="albany.local"
 client = mqtt.Client("LED Sign")
 client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
-line1= "test line 1"
-line2= "test line 2"
 
 
 def on_message(client, userdata, msg):
@@ -50,6 +48,8 @@ class RunText(SampleBase):
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
+        global line1
+        global line2
         offscreen_canvas = self.matrix.CreateFrameCanvas()
         font = graphics.Font()
         font.LoadFont("../../../fonts/4x6.bdf")
