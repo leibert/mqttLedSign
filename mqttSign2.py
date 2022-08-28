@@ -5,12 +5,14 @@ from rgbmatrix import graphics
 import paho.mqtt.client as mqtt
 import time
 
-line1 = "Test Line 1"
-line2 = "Test Line 2"
+global line1 
+global line2 
 
 mqttBroker ="albany.local"
 client = mqtt.Client("LED Sign")
 client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
+line1= "test line 1"
+line2= "test line 2"
 
 
 def on_message(client, userdata, msg):
