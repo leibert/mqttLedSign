@@ -18,14 +18,15 @@ class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
+
+
+    def run(self):
+#        while True:
         offscreen_canvas = self.matrix.CreateFrameCanvas()
         font = graphics.Font()
         font.LoadFont("../../fonts/4x6.bdf")
         textColor = graphics.Color(255, 122, 0)
         pos = offscreen_canvas.width
-
-    def run(self):
-#        while True:
         offscreen_canvas.Clear()
         graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
         graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
