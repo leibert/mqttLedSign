@@ -18,8 +18,17 @@ def on_message(client, userdata, msg):
     topic = msg.topic
     print(topic)
     if topic == "ledsign/line1":
-        print("updating line1")
+        
         line1 = msg.payload.decode()
+        print("updated line1 to: "+ line1)
+
+    if topic == "ledsign/line2":
+        line2 = msg.payload.decode()
+        print("updated line1 to: "+ line2)
+
+    # if topic == "ledsign/color":
+    #     line2 = msg.payload.decode()
+    #     print("updated line1 to: "+ line2)
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -49,7 +58,7 @@ class RunText(SampleBase):
         while True:
             #check for mqtt updates
             rc = client.loop()
-            
+
             offscreen_canvas.Clear()
             # len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
             # pos -= 1
