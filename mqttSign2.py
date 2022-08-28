@@ -47,6 +47,9 @@ class RunText(SampleBase):
         # my_text = self.args.text
 
         while True:
+            #check for mqtt updates
+            rc = client.loop()
+            
             offscreen_canvas.Clear()
             # len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
             # pos -= 1
