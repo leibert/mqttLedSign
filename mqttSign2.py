@@ -17,12 +17,12 @@ class RunText(SampleBase):
         font = graphics.Font()
         font.LoadFont("../../../fonts/4x6.bdf")
         textColor = graphics.Color(255, 255, 0)
-        pos = offscreen_canvas.width
-        my_text = self.args.text
+        # pos = offscreen_canvas.width
+        # my_text = self.args.text
 
         while True:
             offscreen_canvas.Clear()
-            # len = graphics.DrawText(offscreen_canvas, font, pos, 10, textColor, my_text)
+            len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
             # pos -= 1
             # if (pos + len < 0):
             #     pos = offscreen_canvas.width
