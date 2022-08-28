@@ -2,6 +2,7 @@
 # Display a runtext with double-buffering.
 from samplebase import SampleBase
 from rgbmatrix import graphics
+import paho.mqtt.client as mqtt
 import time
 
 line1 = "Test Line 1"
