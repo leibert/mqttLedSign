@@ -18,16 +18,13 @@ class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
-
-    def setup():
         offscreen_canvas = matrix.CreateFrameCanvas()
         font = graphics.Font()
         font.LoadFont("../../fonts/4x6.bdf")
         textColor = graphics.Color(255, 122, 0)
         pos = offscreen_canvas.width
-#        my_text = self.args.text
 
-    def run():
+    def run(self):
 #        while True:
         offscreen_canvas.Clear()
         graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
@@ -65,7 +62,7 @@ if __name__ == "__main__":
     client.subscribe("ledsign/#")
     print("subscribed")
     run_test = RunText()
-    run_text = RunText().setup()
+   
     if (not run_text.process()):
         while(1):
             rc = client.loop()
