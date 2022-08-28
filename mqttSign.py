@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Display a runtext with double-buffering.
-import signBase
+from sampleBase import SampleBase
 from rgbmatrix import graphics
 import time
 import paho.mqtt.client as mqtt
