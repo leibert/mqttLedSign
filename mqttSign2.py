@@ -43,13 +43,15 @@ def on_connect(client, userdata, flags, rc):
 
 
 class RunText(SampleBase):
+    global line1
+    global line2
+    
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
-        global line1
-        global line2
+
         offscreen_canvas = self.matrix.CreateFrameCanvas()
         font = graphics.Font()
         font.LoadFont("../../../fonts/4x6.bdf")
