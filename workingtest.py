@@ -7,31 +7,6 @@ import time
 line1 = "Test Line 1"
 line2 = "Test Line 2"
 
-mqttBroker ="albany.local"
-client = mqtt.Client("LED Sign")
-client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
-
-
-def on_message(client, userdata, msg):
-    print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
-    topic = msg.topic
-    print(topic)
-    if topic == "ledsign/line1":
-        print("updating line1")
-        line1 = msg.payload.decode()
-
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-#    client.subscribe("$SYS/#")
-    client.subscribe("ledsign/#")
-
-
-
-
-
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
@@ -59,10 +34,6 @@ class RunText(SampleBase):
 
 # Main function
 if __name__ == "__main__":
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.connect(mqttBroker, 1883)
-
     run_text = RunText()
     if (not run_text.process()):
         run_text.print_help()
