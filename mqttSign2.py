@@ -80,7 +80,7 @@ def staticLine3():
     graphics.DrawText(offscreen_canvas, font, 0, 15, textColor,line3)
 
 def scrollLine1(reset=False):
-    global line1pos, line1len
+    global line1pos, line1len, offscreen_canvas
     print("b1")
     if reset:
         line1pos = offscreen_canvas.width
