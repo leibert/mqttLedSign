@@ -11,6 +11,7 @@ client = mqtt.Client("LED Sign")
 client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
 
 
+
 #led sign setup
 font = graphics.Font()
 font.LoadFont("../../../fonts/4x6.bdf")
@@ -90,8 +91,8 @@ class RunText(SampleBase):
         # my_text = self.args.text
 
         while True:
-            #check for mqtt updates
-            rc = client.loop()
+            # check for mqtt updates
+            # rc = client.loop()
             self.offscreen_canvas.Clear()
             # len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
             # pos -= 1
@@ -132,7 +133,7 @@ if __name__ == "__main__":
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(mqttBroker, 1883)
-
+    mqttLoop=client.loop_start()
     run_text = RunText()
     if (not run_text.process()):
         run_text.print_help()
