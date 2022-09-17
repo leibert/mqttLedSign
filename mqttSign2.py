@@ -120,12 +120,12 @@ class RunText(SampleBase):
         if reset:
             line1pos = self.offscreen_canvas.width
         print("b2")
-        line1len = graphics.DrawText(offscreen_canvas, font, line1pos, 10, textColor, line1)
+        line1len = graphics.DrawText(self.offscreen_canvas, font, line1pos, 10, textColor, line1)
         print("b3")
         line1pos -= 1
         print("b4")
         if (line1pos + line1len < 0):
-            line1pos = offscreen_canvas.width
+            line1pos = self.offscreen_canvas.width
 
 # Main function
 if __name__ == "__main__":
