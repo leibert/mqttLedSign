@@ -100,7 +100,7 @@ class RunText(SampleBase):
             #     pos = offscreen_canvas.width
             # graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
             # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
-            self.scrollLine1(50)
+            self.scrollLine1(100)
             self.staticLine2()
             time.sleep(0.01)
             self.scrollCounter +=1 
@@ -119,9 +119,10 @@ class RunText(SampleBase):
         global line1pos, line1len
         if reset:
             line1pos = self.offscreen_canvas.width
+        print(self.scrollCounter)
         if not self.scrollCounter % delay:
             return
-
+        print("move scroll")
         line1len = graphics.DrawText(self.offscreen_canvas, font, line1pos, 5, textColor, line1)
         line1pos -= 1
         if (line1pos + line1len < 0):
