@@ -1,36 +1,65 @@
 #!/usr/bin/env python
 # Display a runtext with double-buffering.
+from cgitb import text
 from samplebase import SampleBase
 from rgbmatrix import graphics
 import paho.mqtt.client as mqtt
 import time
-
-line1 = "Test Line 1"
-line2 = "Test Line 2"
 
 mqttBroker ="albany.local"
 client = mqtt.Client("LED Sign")
 client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
 
 
+#led sign setup
+offscreen_canvas = self.matrix.CreateFrameCanvas()
+font = graphics.Font()
+font.LoadFont("../../../fonts/4x6.bdf")
+
+#led sign properties
+line1 = "Test Line 1"
+line1pos=0
+line1len=0
+line2 = "Test Line 2"
+line2pos=0
+line2len=0
+line3 = "Test Line 3"
+line3pos=0
+line3len=0
+
+
+textColor = graphics.Color(255, 255, 255)
+
+
 def on_message(client, userdata, msg):
     global line1
     global line2
+    global line3
+    global textColor
+
     print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
     topic = msg.topic
     print(topic)
     if topic == "ledsign/line1":
-        
         line1 = msg.payload.decode()
         print("updated line1 to: "+ line1)
 
     if topic == "ledsign/line2":
         line2 = msg.payload.decode()
-        print("updated line1 to: "+ line2)
+        print("updated line2 to: "+ line2)
 
-    # if topic == "ledsign/color":
-    #     line2 = msg.payload.decode()
-    #     print("updated line1 to: "+ line2)
+    if topic == "ledsign/line3":
+        line2 = msg.payload.decode()
+        print("updated line3 to: "+ line3)
+
+    if topic == "ledsign/color":
+        color = msg.payload.decode()
+        print("updated color to: "+ line2)
+        a,b,c = color.split(',')
+        print(a)
+        print(b)
+        print(c)
+        textColor = graphics.Color(a, b, c)
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -41,8 +70,26 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("ledsign/#")
 
 
+def staticLine1():
+    graphics.DrawText(offscreen_canvas, font, 0, 5, textColor,line1)
 
+def staticLine2():
+    graphics.DrawText(offscreen_canvas, font, 0, 10, textColor,line2)
 
+def staticLine3():
+    graphics.DrawText(offscreen_canvas, font, 0, 15, textColor,line3)
+
+def scrollLine1(reset=False):
+    global pos1, len1
+    if reset:
+        pos1 = offscreen_canvas.width
+    
+    len1 = graphics.DrawText(offscreen_canvas, font, pos1, 10, textColor, line1)
+    pos1 -= 1
+    if (pos1 + len1 < 0):
+        pos1 = offscreen_canvas.width
+
+    
 
 class RunText(SampleBase):
     # global line1
@@ -53,12 +100,9 @@ class RunText(SampleBase):
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
-
-        offscreen_canvas = self.matrix.CreateFrameCanvas()
-        font = graphics.Font()
-        font.LoadFont("../../../fonts/4x6.bdf")
-        textColor = graphics.Color(255, 255, 0)
-        # pos = offscreen_canvas.width
+        line1_pos = offscreen_canvas.width
+        line2_pos = offscreen_canvas.width
+        line3_pos = offscreen_canvas.width
         # my_text = self.args.text
 
         while True:
@@ -70,8 +114,10 @@ class RunText(SampleBase):
             # pos -= 1
             # if (pos + len < 0):
             #     pos = offscreen_canvas.width
-            graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
-            graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
+            # graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
+            # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
+            scrollLine1()
+            staticLine2()
             time.sleep(0.05)
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
 
