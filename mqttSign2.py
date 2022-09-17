@@ -102,7 +102,7 @@ class RunText(SampleBase):
             self.scrollLine1(100)
             self.staticLine2()
             time.sleep(0.001)
-            scrollCounter +=1 
+            self.scrollCounter +=1 
             offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
     
     def staticLine1(self):
