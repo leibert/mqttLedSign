@@ -12,7 +12,7 @@ client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
 
 
 #led sign setup
-offscreen_canvas = self.matrix.CreateFrameCanvas()
+offscreen_canvas = None
 font = graphics.Font()
 font.LoadFont("../../../fonts/4x6.bdf")
 
@@ -94,12 +94,15 @@ def scrollLine1(reset=False):
 class RunText(SampleBase):
     # global line1
     # global line2
+    global offscreen_canvas
 
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
+        offscreen_canvas = self.matrix.CreateFrameCanvas()
+
         line1_pos = offscreen_canvas.width
         line2_pos = offscreen_canvas.width
         line3_pos = offscreen_canvas.width
