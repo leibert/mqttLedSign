@@ -102,9 +102,8 @@ class RunText(SampleBase):
             # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
             self.scrollLine1(50)
             self.staticLine2()
-            time.sleep(0.001)
+            time.sleep(0.01)
             self.scrollCounter +=1 
-            print(self.scrollCounter)
             offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
     
     def staticLine1(self):
