@@ -114,7 +114,7 @@ class RunText(SampleBase):
     def staticLine3(self):
         graphics.DrawText(self.offscreen_canvas, font, 0, 15, textColor,line3)
 
-    def scrollLine1(self, delay, reset=False):
+    def scrollLine1(self, delay=100, reset=False):
         global line1pos, line1len
         if reset:
             line1pos = self.offscreen_canvas.width
