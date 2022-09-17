@@ -79,6 +79,7 @@ class RunText(SampleBase):
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
+        global offscreen_canvas
         offscreen_canvas = self.matrix.CreateFrameCanvas()
         print("A2")
         line1_pos = offscreen_canvas.width
