@@ -99,7 +99,7 @@ class RunText(SampleBase):
             #     pos = offscreen_canvas.width
             # graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
             # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
-            self.scrollLine1(100)
+            self.scrollLine1(50)
             self.staticLine2()
             time.sleep(0.001)
             self.scrollCounter +=1 
