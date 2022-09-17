@@ -74,6 +74,8 @@ def on_connect(client, userdata, flags, rc):
 
 class RunText(SampleBase):
     offscreen_canvas=None
+    scrollCounter=0
+
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
@@ -90,19 +92,17 @@ class RunText(SampleBase):
         while True:
             #check for mqtt updates
             rc = client.loop()
-            print("A5")
             self.offscreen_canvas.Clear()
-            print("A6")
             # len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
             # pos -= 1
             # if (pos + len < 0):
             #     pos = offscreen_canvas.width
             # graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
             # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
-            self.scrollLine1()
-            print("A7")
+            self.scrollLine1(100)
             self.staticLine2()
-            time.sleep(0.05)
+            time.sleep(0.001)
+            scrollCounter +=1 
             offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
     
     def staticLine1(self):
@@ -114,16 +114,15 @@ class RunText(SampleBase):
     def staticLine3(self):
         graphics.DrawText(self.offscreen_canvas, font, 0, 15, textColor,line3)
 
-    def scrollLine1(self, reset=False):
+    def scrollLine1(self, delay, reset=False):
         global line1pos, line1len
-        print("b1")
         if reset:
             line1pos = self.offscreen_canvas.width
-        print("b2")
-        line1len = graphics.DrawText(self.offscreen_canvas, font, line1pos, 10, textColor, line1)
-        print("b3")
+        if not self.scrollCounter % delay:
+            return
+
+        line1len = graphics.DrawText(self.offscreen_canvas, font, line1pos, 5, textColor, line1)
         line1pos -= 1
-        print("b4")
         if (line1pos + line1len < 0):
             line1pos = self.offscreen_canvas.width
 
