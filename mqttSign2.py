@@ -119,13 +119,13 @@ class RunText(SampleBase):
         global line1pos, line1len
         if reset:
             line1pos = self.offscreen_canvas.width
-        if not self.scrollCounter % delay ==0:
-            return
-        line1len = graphics.DrawText(self.offscreen_canvas, font, line1pos, 5, textColor, line1)
-        line1pos -= 1
-        if (line1pos + line1len < 0):
-            line1pos = self.offscreen_canvas.width
+        if self.scrollCounter % delay ==0:
+            line1pos -= 1
+            if (line1pos + line1len < 0):
+                line1pos = self.offscreen_canvas.width
 
+        line1len = graphics.DrawText(self.offscreen_canvas, font, line1pos, 5, textColor, line1)
+        
 # Main function
 if __name__ == "__main__":
     client.on_connect = on_connect
