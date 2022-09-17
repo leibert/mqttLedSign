@@ -81,11 +81,14 @@ def staticLine3():
 
 def scrollLine1(reset=False):
     global line1pos, line1len
+    print("b1")
     if reset:
         line1pos = offscreen_canvas.width
-    
+    print("b2")
     line1len = graphics.DrawText(offscreen_canvas, font, line1pos, 10, textColor, line1)
+    print("b3")
     line1pos -= 1
+    print("b4")
     if (line1pos + line1len < 0):
         line1pos = offscreen_canvas.width
 
@@ -122,6 +125,7 @@ class RunText(SampleBase):
             # graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
             # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
             scrollLine1()
+            print("A7")
             staticLine2()
             time.sleep(0.05)
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
