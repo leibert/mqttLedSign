@@ -124,7 +124,7 @@ class RunText(SampleBase):
             #     pos = offscreen_canvas.width
             # graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
             # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
-            scrollLine1()
+            # scrollLine1()
             print("A7")
             staticLine2()
             time.sleep(0.05)
