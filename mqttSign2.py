@@ -79,12 +79,11 @@ class RunText(SampleBase):
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
-        global offscreen_canvas
-        offscreen_canvas = self.matrix.CreateFrameCanvas()
+        self.offscreen_canvas = self.matrix.CreateFrameCanvas()
         print("A2")
-        line1_pos = offscreen_canvas.width
-        line2_pos = offscreen_canvas.width
-        line3_pos = offscreen_canvas.width
+        line1_pos = self.offscreen_canvas.width
+        line2_pos = self.offscreen_canvas.width
+        line3_pos = self.offscreen_canvas.width
         print("A3")
         # my_text = self.args.text
 
@@ -92,7 +91,7 @@ class RunText(SampleBase):
             #check for mqtt updates
             rc = client.loop()
             print("A5")
-            offscreen_canvas.Clear()
+            self.offscreen_canvas.Clear()
             print("A6")
             # len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
             # pos -= 1
