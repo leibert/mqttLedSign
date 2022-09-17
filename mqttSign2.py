@@ -105,20 +105,20 @@ class RunText(SampleBase):
             time.sleep(0.05)
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
     
-    def staticLine1():
-        graphics.DrawText(offscreen_canvas, font, 0, 5, textColor,line1)
+    def staticLine1(self):
+        graphics.DrawText(self.offscreen_canvas, font, 0, 5, textColor,line1)
 
-    def staticLine2():
-        graphics.DrawText(offscreen_canvas, font, 0, 10, textColor,line2)
+    def staticLine2(self):
+        graphics.DrawText(self.offscreen_canvas, font, 0, 10, textColor,line2)
 
-    def staticLine3():
-        graphics.DrawText(offscreen_canvas, font, 0, 15, textColor,line3)
+    def staticLine3(self):
+        graphics.DrawText(self.offscreen_canvas, font, 0, 15, textColor,line3)
 
-    def scrollLine1(reset=False):
+    def scrollLine1(self, reset=False):
         global line1pos, line1len
         print("b1")
         if reset:
-            line1pos = offscreen_canvas.width
+            line1pos = self.offscreen_canvas.width
         print("b2")
         line1len = graphics.DrawText(offscreen_canvas, font, line1pos, 10, textColor, line1)
         print("b3")
