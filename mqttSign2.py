@@ -73,6 +73,7 @@ def on_connect(client, userdata, flags, rc):
     
 
 class RunText(SampleBase):
+    offscreen_canvas=None
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
