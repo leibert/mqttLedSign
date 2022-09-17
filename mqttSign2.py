@@ -77,33 +77,6 @@ class RunText(SampleBase):
         super(RunText, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
-    def staticLine1():
-        graphics.DrawText(offscreen_canvas, font, 0, 5, textColor,line1)
-
-    def staticLine2():
-        graphics.DrawText(offscreen_canvas, font, 0, 10, textColor,line2)
-
-    def staticLine3():
-        graphics.DrawText(offscreen_canvas, font, 0, 15, textColor,line3)
-
-    def scrollLine1(reset=False):
-        global line1pos, line1len, offscreen_canvas
-        print("b1")
-        if reset:
-            line1pos = offscreen_canvas.width
-        print("b2")
-        line1len = graphics.DrawText(offscreen_canvas, font, line1pos, 10, textColor, line1)
-        print("b3")
-        line1pos -= 1
-        print("b4")
-        if (line1pos + line1len < 0):
-            line1pos = offscreen_canvas.width
-
-
-
-
-
-
     def run(self):
         offscreen_canvas = self.matrix.CreateFrameCanvas()
         print("A2")
@@ -130,7 +103,28 @@ class RunText(SampleBase):
             self.staticLine2()
             time.sleep(0.05)
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
+    
+    def staticLine1():
+        graphics.DrawText(offscreen_canvas, font, 0, 5, textColor,line1)
 
+    def staticLine2():
+        graphics.DrawText(offscreen_canvas, font, 0, 10, textColor,line2)
+
+    def staticLine3():
+        graphics.DrawText(offscreen_canvas, font, 0, 15, textColor,line3)
+
+    def scrollLine1(reset=False):
+        global line1pos, line1len
+        print("b1")
+        if reset:
+            line1pos = offscreen_canvas.width
+        print("b2")
+        line1len = graphics.DrawText(offscreen_canvas, font, line1pos, 10, textColor, line1)
+        print("b3")
+        line1pos -= 1
+        print("b4")
+        if (line1pos + line1len < 0):
+            line1pos = offscreen_canvas.width
 
 # Main function
 if __name__ == "__main__":
