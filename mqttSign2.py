@@ -103,7 +103,7 @@ class RunText(SampleBase):
             print("A7")
             self.staticLine2()
             time.sleep(0.05)
-            offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
+            offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
     
     def staticLine1(self):
         graphics.DrawText(self.offscreen_canvas, font, 0, 5, textColor,line1)
