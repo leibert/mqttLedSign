@@ -119,7 +119,7 @@ class RunText(SampleBase):
         graphics.DrawText(self.offscreen_canvas, font714, 15, 16, textColor, datetime.now().strftime('%H:%M:%S'))
 
     def clockLine(self):
-        graphics.DrawText(self.offscreen_canvas, font46, 0, 5, textColor, datetime.now().strftime('%a %m/%d %H:%M:%S'))
+        graphics.DrawText(self.offscreen_canvas, font46, 5, 5, textColor, datetime.now().strftime('%a %m/%d   %H:%M:%S'))
         
     def staticLine1(self):
         graphics.DrawText(self.offscreen_canvas, font46, 0, 5, textColor,line1)
