@@ -108,13 +108,13 @@ class RunText(SampleBase):
             ### functions
             # self.scrollLine1(10)
             # self.staticLine2()
-            self.clock()
-            time.sleep(0.02)
+            self.bigClock()
+            time.sleep(0.1)
             self.scrollCounter +=1 
             offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
     
-    def clock(self):   
-        graphics.DrawText(self.offscreen_canvas, font46, 16, 5, textColor, datetime.now().strftime('%A %b %d'))
+    def bigClock(self):   
+        graphics.DrawText(self.offscreen_canvas, font46, 17, 5, textColor, datetime.now().strftime('%A %b %d'))
         graphics.DrawText(self.offscreen_canvas, font714, 15, 16, textColor, datetime.now().strftime('%H %M %S'))
         
 
