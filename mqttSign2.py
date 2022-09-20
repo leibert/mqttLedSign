@@ -14,8 +14,10 @@ client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
 
 
 #led sign setup
-font = graphics.Font()
-font.LoadFont("../../../fonts/4x6.bdf")
+font46 = graphics.Font()
+font46.LoadFont("../../../fonts/4x6.bdf")
+font714 = graphics.Font()
+font714.LoadFont("../../../fonts/7x14.bdf")
 
 #led sign properties
 line1 = "Test Line 1"
@@ -29,7 +31,7 @@ line3pos=0
 line3len=0
 
 
-textColor = graphics.Color(255, 255, 255)
+textColor = graphics.Color(0, 0, 255)
 
 
 def on_message(client, userdata, msg):
@@ -107,23 +109,23 @@ class RunText(SampleBase):
             # self.scrollLine1(10)
             # self.staticLine2()
             self.clock()
-            time.sleep(0.01)
+            time.sleep(0.02)
             self.scrollCounter +=1 
             offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
     
     def clock(self):   
-        graphics.DrawText(self.offscreen_canvas, font, 0, 5, textColor,datetime.now().strftime('%A %b %d'))
-        graphics.DrawText(self.offscreen_canvas, font, 0, 10, textColor,datetime.now().strftime('%H %M %S'))
+        graphics.DrawText(self.offscreen_canvas, font46, 40, 5, textColor, datetime.now().strftime('%A %b %d'))
+        graphics.DrawText(self.offscreen_canvas, font714, 40, 10, textColor, datetime.now().strftime('%H %M %S'))
         
 
     def staticLine1(self):
-        graphics.DrawText(self.offscreen_canvas, font, 0, 5, textColor,line1)
+        graphics.DrawText(self.offscreen_canvas, font46, 0, 5, textColor,line1)
 
     def staticLine2(self):
-        graphics.DrawText(self.offscreen_canvas, font, 0, 10, textColor,line2)
+        graphics.DrawText(self.offscreen_canvas, font46, 0, 10, textColor,line2)
 
     def staticLine3(self):
-        graphics.DrawText(self.offscreen_canvas, font, 0, 15, textColor,line3)
+        graphics.DrawText(self.offscreen_canvas, font46, 0, 15, textColor,line3)
 
     def scrollLine1(self, delay=100, reset=False):
         global line1pos, line1len
@@ -134,7 +136,7 @@ class RunText(SampleBase):
             if (line1pos + line1len < 0):
                 line1pos = self.offscreen_canvas.width
 
-        line1len = graphics.DrawText(self.offscreen_canvas, font, line1pos, 5, textColor, line1)
+        line1len = graphics.DrawText(self.offscreen_canvas, font46, line1pos, 5, textColor, line1)
         
 # Main function
 if __name__ == "__main__":
