@@ -5,6 +5,7 @@ from samplebase import SampleBase
 from rgbmatrix import graphics
 import paho.mqtt.client as mqtt
 import time
+from datetime import datetime
 
 mqttBroker ="albany.local"
 client = mqtt.Client("LED Sign")
@@ -100,12 +101,21 @@ class RunText(SampleBase):
             #     pos = offscreen_canvas.width
             # graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
             # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
-            self.scrollLine1(10)
-            self.staticLine2()
+
+
+            ### functions
+            # self.scrollLine1(10)
+            # self.staticLine2()
+            self.clock()
             time.sleep(0.01)
             self.scrollCounter +=1 
             offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
     
+    def clock(self):   
+        graphics.DrawText(self.offscreen_canvas, font, 0, 5, textColor,datetime.now().strftime('%A %b %d'))
+        graphics.DrawText(self.offscreen_canvas, font, 0, 10, textColor,datetime.now().strftime('%H %M %S'))
+        
+
     def staticLine1(self):
         graphics.DrawText(self.offscreen_canvas, font, 0, 5, textColor,line1)
 
