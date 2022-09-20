@@ -114,8 +114,8 @@ class RunText(SampleBase):
             offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
     
     def clock(self):   
-        graphics.DrawText(self.offscreen_canvas, font46, 40, 5, textColor, datetime.now().strftime('%A %b %d'))
-        graphics.DrawText(self.offscreen_canvas, font714, 40, 10, textColor, datetime.now().strftime('%H %M %S'))
+        graphics.DrawText(self.offscreen_canvas, font46, 10, 5, textColor, datetime.now().strftime('%A %b %d'))
+        graphics.DrawText(self.offscreen_canvas, font714, 10, 15, textColor, datetime.now().strftime('%H %M %S'))
         
 
     def staticLine1(self):
