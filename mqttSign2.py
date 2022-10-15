@@ -111,8 +111,9 @@ class RunSign(SampleBase):
         # my_text = self.args.text
 
         while True:
-            
-
+            time.sleep(0.01)
+            self.offscreen_canvas.Clear()
+            # self.offscreen_canvas.Clear()
             if mode == "clock":
                 self.clockLine()
             elif mode == "bigClock":
@@ -126,9 +127,7 @@ class RunSign(SampleBase):
                 self.scrollLine1()
             
             self.scrollCounter +=1 
-            self.offscreen_canvas.Clear()
-            offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
-            # time.sleep(0.01)
+            offscreen_canvas=self.matrix.SwapOnVSync(self.offscreen_canvas)
     
     def bigClock(self):   
         graphics.DrawText(self.offscreen_canvas, font46, 17, 5, textColor, datetime.now().strftime('%A %b %d'))
