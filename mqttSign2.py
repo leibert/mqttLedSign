@@ -30,15 +30,22 @@ line3 = "Test Line 3"
 line3pos=0
 line3len=0
 
+#mqtt variables
+mode = "clock"
+messageType = None
+messageSender = None
+messageText = None
+
+newCommand = False
+
 
 textColor = graphics.Color(0, 0, 255)
 
 
 def on_message(client, userdata, msg):
-    global line1
-    global line2
-    global line3
-    global textColor
+    global mode
+    global line1, line2, line3, textColor
+    global messageType, messageSender, messageText
 
     print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
     topic = msg.topic
@@ -47,15 +54,15 @@ def on_message(client, userdata, msg):
         line1 = msg.payload.decode()
         print("updated line1 to: "+ line1)
 
-    if topic == "ledsign/line2":
+    elif topic == "ledsign/line2":
         line2 = msg.payload.decode()
         print("updated line2 to: "+ line2)
 
-    if topic == "ledsign/line3":
+    elif topic == "ledsign/line3":
         line2 = msg.payload.decode()
         print("updated line3 to: "+ line3)
 
-    if topic == "ledsign/color":
+    elif topic == "ledsign/color":
         color = msg.payload.decode()
         print("updated color to: "+ line2)
         a,b,c = color.split(',')
@@ -63,6 +70,16 @@ def on_message(client, userdata, msg):
         print(b)
         print(c)
         textColor = graphics.Color(a, b, c)
+    elif topic == "ledsign/mode":
+        mode = msg.payload.decode()
+    elif topic == "ledsign/messageType":
+        messageType=msg.payload.decode()
+    elif topic == "ledsign/messageSender":
+        messageSender=msg.payload.decode()
+    elif topic == "ledsign/messageText":
+        messageText=msg.payload.decode()
+    
+
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -76,12 +93,12 @@ def on_connect(client, userdata, flags, rc):
 
     
 
-class RunText(SampleBase):
+class RunSign(SampleBase):
     offscreen_canvas=None
     scrollCounter=0
 
     def __init__(self, *args, **kwargs):
-        super(RunText, self).__init__(*args, **kwargs)
+        super(RunSign, self).__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
@@ -94,22 +111,20 @@ class RunText(SampleBase):
         # my_text = self.args.text
 
         while True:
-            # check for mqtt updates
-            # rc = client.loop()
             self.offscreen_canvas.Clear()
-            # len = graphics.DrawText(offscreen_canvas, font, 20, 10, textColor, "ABBB")
-            # pos -= 1
-            # if (pos + len < 0):
-            #     pos = offscreen_canvas.width
-            # graphics.DrawText(offscreen_canvas, font, 42, 6, textColor,line1)
-            # graphics.DrawText(offscreen_canvas, font, 72, 13, textColor,line2)
 
-
-            ### functions
-            # self.scrollLine1(10)
-            # self.staticLine2()
-            # self.bigClock()
-            self.clockLine()
+            if mode == "clock":
+                self.clockLine()
+            elif mode == "bigClock":
+                self.bigClock()
+            # if mode == "message"
+            if mode == "static":
+                self.staticLine1()
+                self.staticLine2()
+                self.staticLine3()
+            if mode == "scroll":
+                self.scrollLine1()
+            
             self.scrollCounter +=1 
             offscreen_canvas = self.matrix.SwapOnVSync(self.offscreen_canvas)
             time.sleep(0.01)
@@ -147,6 +162,7 @@ if __name__ == "__main__":
     client.on_message = on_message
     client.connect(mqttBroker, 1883)
     mqttLoop=client.loop_start()
-    run_text = RunText()
+
+    run_text = RunSign()
     if (not run_text.process()):
         run_text.print_help()
