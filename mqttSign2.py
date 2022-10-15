@@ -111,10 +111,11 @@ class RunSign(SampleBase):
         # my_text = self.args.text
 
         while True:
-            time.sleep(0.01)
+            time.sleep(0.1)
             self.offscreen_canvas.Clear()
             # self.offscreen_canvas.Clear()
             if mode == "clock":
+                time.sleep(0.15)
                 self.clockLine()
             elif mode == "bigClock":
                 self.bigClock()
