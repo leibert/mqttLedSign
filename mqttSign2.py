@@ -19,50 +19,34 @@ font46.LoadFont("../../../fonts/4x6.bdf")
 font714 = graphics.Font()
 font714.LoadFont("../../../fonts/7x14.bdf")
 
-#led sign properties
-line1 = "Test Line 1"
-line1pos=0
-line1len=0
-line2 = "Test Line 2"
-line2pos=0
-line2len=0
-line3 = "Test Line 3"
-line3pos=0
-line3len=0
 
-#mqtt variables
-mode = "clock"
-messageType = None
-messageSender = None
-messageText = None
 
-newCommand = False
+
 
 
 textColor = graphics.Color(0, 0, 255)
 
 
 def on_message(client, userdata, msg):
-    global mode
-    global line1, line2, line3, textColor
-    global messageType, messageSender, messageText
+    global textColor
+    
 
     print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
     topic = msg.topic
     print(topic)
-    if topic == "ledsign/line1":
-        line1 = msg.payload.decode()
+    if topic == "ledSign/line1":
+        run_text.line1 = msg.payload.decode()
         print("updated line1 to: "+ line1)
 
-    elif topic == "ledsign/line2":
-        line2 = msg.payload.decode()
+    elif topic == "ledSign/line2":
+        run_text.line2 = msg.payload.decode()
         print("updated line2 to: "+ line2)
 
-    elif topic == "ledsign/line3":
-        line2 = msg.payload.decode()
+    elif topic == "ledSign/line3":
+        run_text.line2 = msg.payload.decode()
         print("updated line3 to: "+ line3)
 
-    elif topic == "ledsign/color":
+    elif topic == "ledSign/color":
         color = msg.payload.decode()
         print("updated color to: "+ line2)
         a,b,c = color.split(',')
@@ -70,15 +54,17 @@ def on_message(client, userdata, msg):
         print(b)
         print(c)
         textColor = graphics.Color(a, b, c)
-    elif topic == "ledsign/mode":
-        mode = msg.payload.decode()
-    elif topic == "ledsign/messageType":
-        messageType=msg.payload.decode()
-    elif topic == "ledsign/messageSender":
-        messageSender=msg.payload.decode()
-    elif topic == "ledsign/messageText":
-        messageText=msg.payload.decode()
+    elif topic == "ledSign/mode":
+        run_text.mode = msg.payload.decode()
+    elif topic == "ledSign/message/type":
+        run_text.messageType=msg.payload.decode()
+    elif topic == "ledSign/message/sender":
+        run_text.messageSender=msg.payload.decode()
+    elif topic == "ledSign/message/text":
+        run_text.messageText=msg.payload.decode()
     
+    
+    run_text.newCommand=True
 
 
 def on_connect(client, userdata, flags, rc):
@@ -87,15 +73,36 @@ def on_connect(client, userdata, flags, rc):
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
 #    client.subscribe("$SYS/#")
-    client.subscribe("ledsign/#")
+    client.subscribe("ledSign/#")
 
 
 
     
 
 class RunSign(SampleBase):
+    
     offscreen_canvas=None
     scrollCounter=0
+
+    mode = "clock"
+    messageType = ""
+    messageSender = ""
+    messageText = ""
+
+    newCommand= False
+
+
+    #led sign properties
+    line1 = "Test Line 1"
+    line1pos=0
+    line1len=0
+    line2 = "Test Line 2"
+    line2pos=0
+    line2len=0
+    line3 = "Test Line 3"
+    line3pos=0
+    line3len=0
+
 
     def __init__(self, *args, **kwargs):
         super(RunSign, self).__init__(*args, **kwargs)
@@ -111,23 +118,38 @@ class RunSign(SampleBase):
         # my_text = self.args.text
 
         while True:
+            # if datetime.now().second % 5 == 0:
+            #     print(self.mode)
+            #     print(self.messageType)
             time.sleep(0.1)
             self.offscreen_canvas.Clear()
             # self.offscreen_canvas.Clear()
-            if mode == "clock":
-                time.sleep(0.15)
+            if self.mode == "clock":
+                # time.sleep(0.15)
                 self.clockLine()
-            elif mode == "bigClock":
+            elif self.mode == "bigClock":
                 self.bigClock()
-            # if mode == "message"
-            if mode == "static":
+            elif self.mode == "message":
+                if self.newCommand:
+                    print("FLSH")
+                    print(self.messageType)
+                    print(self.messageSender)
+                    self.line1=self.messageType
+                    self.line2=self.messageSender
+                    self.line3=self.messageText
+                    print(self.line1+"/"+self.line2+"/"+self.line3)
+                    self.newCommand=False
                 self.staticLine1()
                 self.staticLine2()
                 self.staticLine3()
-            if mode == "scroll":
+            elif self.mode == "static":
+                self.staticLine1()
+                self.staticLine2()
+                self.staticLine3()
+            elif self.mode == "scroll":
+                self.scrollCounter +=1 
                 self.scrollLine1()
             
-            self.scrollCounter +=1 
             offscreen_canvas=self.matrix.SwapOnVSync(self.offscreen_canvas)
     
     def bigClock(self):   
@@ -138,24 +160,24 @@ class RunSign(SampleBase):
         graphics.DrawText(self.offscreen_canvas, font46, 6, 5, textColor, datetime.now().strftime('%a %m/%d   %H:%M:%S'))
         
     def staticLine1(self):
-        graphics.DrawText(self.offscreen_canvas, font46, 0, 5, textColor,line1)
+        graphics.DrawText(self.offscreen_canvas, font46, 0, 5, textColor,(self.line1 or ""))
 
     def staticLine2(self):
-        graphics.DrawText(self.offscreen_canvas, font46, 0, 10, textColor,line2)
+        graphics.DrawText(self.offscreen_canvas, font46, 0, 10, textColor,(self.line2 or ""))
 
     def staticLine3(self):
-        graphics.DrawText(self.offscreen_canvas, font46, 0, 15, textColor,line3)
+        graphics.DrawText(self.offscreen_canvas, font46, 0, 15, textColor,(self.line3 or ""))
 
     def scrollLine1(self, delay=100, reset=False):
-        global line1pos, line1len
+        self.line1pos, self.line1len
         if reset:
-            line1pos = self.offscreen_canvas.width
+            self.line1pos = self.offscreen_canvas.width
         if self.scrollCounter % delay ==0:
-            line1pos -= 1
-            if (line1pos + line1len < 0):
-                line1pos = self.offscreen_canvas.width
+            self.line1pos -= 1
+            if (self.line1pos + self.line1len < 0):
+                self.line1pos = self.offscreen_canvas.width
 
-        line1len = graphics.DrawText(self.offscreen_canvas, font46, line1pos, 5, textColor, line1)
+        self.line1len = graphics.DrawText(self.offscreen_canvas, font46, self.line1pos, 5, textColor, self.line1)
         
 # Main function
 if __name__ == "__main__":
