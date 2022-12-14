@@ -15,9 +15,9 @@ client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
 
 #led sign setup
 font46 = graphics.Font()
-font46.LoadFont("../../../fonts/4x6.bdf")
+font46.LoadFont("../../../../fonts/4x6.bdf")
 font714 = graphics.Font()
-font714.LoadFont("../../../fonts/7x14.bdf")
+font714.LoadFont("../../../../fonts/7x14.bdf")
 
 
 
