@@ -1,8 +1,14 @@
-#!/usr/bin/env python
-# Display a runtext with double-buffering.
+import sys
+sys.path.append('/home/pi/rpi-rgb-led-matrix/bindings/python')
+
 from cgitb import text
-from samplebase import SampleBase
+
+from samples.samplebase import SampleBase
 from rgbmatrix import graphics
+
+
+# from samplebase import SampleBase
+# from rgbmatrix import graphics
 import paho.mqtt.client as mqtt
 import time
 from datetime import datetime
@@ -15,9 +21,9 @@ client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
 
 #led sign setup
 font46 = graphics.Font()
-font46.LoadFont("../../../../fonts/4x6.bdf")
+font46.LoadFont("../rpi-rgb-led-matrix/fonts/4x6.bdf")
 font714 = graphics.Font()
-font714.LoadFont("../../../../fonts/7x14.bdf")
+font714.LoadFont("../rpi-rgb-led-matrix/fonts/7x14.bdf")
 
 
 
@@ -84,7 +90,7 @@ class RunSign(SampleBase):
     offscreen_canvas=None
     scrollCounter=0
 
-    mode = "clock"
+    mode = "bigClock"
     messageType = ""
     messageSender = ""
     messageText = ""
@@ -154,7 +160,7 @@ class RunSign(SampleBase):
     
     def bigClock(self):   
         graphics.DrawText(self.offscreen_canvas, font46, 17, 5, textColor, datetime.now().strftime('%A %b %d'))
-        graphics.DrawText(self.offscreen_canvas, font714, 15, 16, textColor, datetime.now().strftime('%H:%M:%S'))
+        graphics.DrawText(self.offscreen_canvas, font714, 20, 16, textColor, datetime.now().strftime('%H:%M:%S'))
 
     def clockLine(self):
         graphics.DrawText(self.offscreen_canvas, font46, 6, 5, textColor, datetime.now().strftime('%a %m/%d   %H:%M:%S'))
