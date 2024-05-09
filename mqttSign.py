@@ -15,9 +15,9 @@ import paho.mqtt.client as mqtt
 import time
 from datetime import datetime,timedelta
 
-mqttBroker ="mqtt.mccarthyinternet.net"
+mqttBroker ="mqtt"
 client = mqtt.Client("LED Sign")
-client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
+client.username_pw_set("mqtt", password="pw")
 
 
 
