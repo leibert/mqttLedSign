@@ -13,11 +13,11 @@ from rgbmatrix import graphics
 # from rgbmatrix import graphics
 import paho.mqtt.client as mqtt
 import time
-from datetime import datetime
+from datetime import datetime,timedelta
 
-mqttBroker ="albany.local"
+mqttBroker ="mqtt.mccarthyinternet.net"
 client = mqtt.Client("LED Sign")
-client.username_pw_set("mqtt", password="PW")
+client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
 
 
 
@@ -56,6 +56,19 @@ fontclR612.LoadFont("/home/pi/rpi-rgb-led-matrix/fonts/clR6x12.bdf")
 textColor = graphics.Color(0, 0, 255)
 
 
+nextEvent = {}
+# nextEvent["start"]=datetime.fromtimestamp(float("1676175535.0"))
+# nextEvent["start"]=datetime.now()+timedelta(minutes=0,seconds=15)
+# nextEvent["subject"]="Testing"
+# nextEvent["organizer"]="Colin McCarthy"
+# nextEvent["attendees"]="Bob, Sam, Jill"
+# nextEvent["isExternal"]="False"
+nextEvent["start"]=None
+nextEvent["subject"]=None
+nextEvent["organizer"]=None
+nextEvent["attendees"]=None
+nextEvent["isExternal"]=None
+
 def on_message(client, userdata, msg):
     global textColor
     
@@ -84,7 +97,11 @@ def on_message(client, userdata, msg):
         print(c)
         textColor = graphics.Color(a, b, c)
     elif topic == "ledSign/mode":
+        print("new mode recieved")
+        print(msg.payload.decode())
+        run_text.newCommand=True
         run_text.mode = msg.payload.decode()
+
     elif topic == "ledSign/message/type":
         run_text.messageType=msg.payload.decode()
     elif topic == "ledSign/message/sender":
@@ -94,14 +111,31 @@ def on_message(client, userdata, msg):
     elif topic == "ledSign/EN":
         if (msg.payload.decode()=="OFF"):
             run_text.mode="OFF"
+            run_text.displayEnabled=False
             client.publish("ledSign/mode","OFF")
         else:
+            run_text.displayEnabled=True
             run_text.mode="bigClock"
             client.publish("ledSign/mode","bigClock")
-            
+    elif topic == "nextEvent/timeStamp":
+        try:
+            print ("SSqDEBUG")
+            nextEvent['start']=datetime.fromtimestamp(float(msg.payload.decode())+1)
+            print ("SSSDEBUG")
+            print (nextEvent['start'])
+        except:
+            nextEvent['start'] = None
+    elif topic == "nextEvent/subject":
+       nextEvent['subject']=msg.payload.decode()
+    elif topic == "nextEvent/organizer":
+       nextEvent['organizer']=msg.payload.decode()
+    elif topic == "nextEvent/attendees":
+       nextEvent['attendees']=msg.payload.decode()
+    elif topic == "nextEvent/isExternal":
+       nextEvent['isExternal']=msg.payload.decode()
 
     
-    run_text.newCommand=True
+
 
 
 def on_connect(client, userdata, flags, rc):
@@ -111,6 +145,8 @@ def on_connect(client, userdata, flags, rc):
     # reconnect then subscriptions will be renewed.
 #    client.subscribe("$SYS/#")
     client.subscribe("ledSign/#")
+    client.subscribe("nextEvent/#")
+
 
 
 
@@ -122,11 +158,14 @@ class RunSign(SampleBase):
     scrollCounter=0
 
     mode = "bigClock"
+    displayEnabled = True
+    # mode = "eventCountdown"
+
     messageType = ""
     messageSender = ""
     messageText = ""
 
-    newCommand= False
+    newCommand = False
 
 
     #led sign properties
@@ -146,6 +185,7 @@ class RunSign(SampleBase):
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
+        
         self.offscreen_canvas = self.matrix.CreateFrameCanvas()
         print("A2")
         line1_pos = self.offscreen_canvas.width
@@ -161,47 +201,161 @@ class RunSign(SampleBase):
             time.sleep(0.1)
             self.offscreen_canvas.Clear()
             # self.offscreen_canvas.Clear()
-            if self.mode == "clock":
-                # time.sleep(0.15)
-                self.clockLine()
-            elif self.mode == "bigClock":
-                self.bigClock()
-            elif self.mode == "message":
-                if self.newCommand:
-                    print("FLSH")
-                    print(self.messageType)
-                    print(self.messageSender)
-                    self.line1=self.messageType + " || " + self.messageSender
-                    self.line2=self.messageText
-                    print(self.line1+"/"+self.line2)
-                    self.newCommand=False
-                self.staticLine1(font=font58, color = graphics.Color(255, 0, 0))
-                self.staticLine2(font=font610, color = graphics.Color(255, 255, 0))
+            self.scrollCounter +=1 
+
+            try:
+                if not self.displayEnabled:
+                    self.offscreen_canvas.Clear()
+
+                elif self.mode == "clock":
+                    # time.sleep(0.15)
+                    self.clockLine()
+                elif self.mode == "bigClock":
+                    self.bigClock()
+                elif self.mode == "message":
+                    if self.newCommand:
+                        print("FLSH")
+                        print(self.messageType)
+                        print(self.messageSender)
+                        self.line1=self.messageType + " || " + self.messageSender
+                        self.line2=self.messageText
+                        print(self.line1+"/"+self.line2)
+                    self.staticLine1(font=font46, color = graphics.Color(0, 0, 255), reset=self.newCommand)
+                    self.staticLine2(font=font610, color = graphics.Color(255, 255,0), reset=self.newCommand)
+
+                    
+                elif self.mode == "static":
+                    self.staticLine1()
+                    self.staticLine2()
+                    self.staticLine3()
+                elif self.mode == "scroll":
+                    # self.scrollCounter +=1 
+                    self.scrollLine1()
                 
-            elif self.mode == "static":
-                self.staticLine1()
-                self.staticLine2()
-                self.staticLine3()
-            elif self.mode == "scroll":
-                self.scrollCounter +=1 
-                self.scrollLine1()
-            else:
+                elif self.mode == "eventCountdown":
+                    if nextEvent is None or "subject" not in nextEvent:
+                        print("no Event")
+                        continue
+                    if (nextEvent["start"] and nextEvent["start"]>datetime.now()):
+                        secondsUntilNextEvent=(nextEvent["start"] - datetime.now()).seconds
+                        if secondsUntilNextEvent < 300 and secondsUntilNextEvent > 290:
+                            if secondsUntilNextEvent % 2:
+                                self.offscreen_canvas.Fill(80,80,80)
+                        elif secondsUntilNextEvent < 120 and secondsUntilNextEvent > 110:
+                            if secondsUntilNextEvent % 2:
+                                self.offscreen_canvas.Fill(80,80,0)
+                        elif secondsUntilNextEvent < 60 and secondsUntilNextEvent > 50:
+                            if secondsUntilNextEvent % 2:
+                                self.offscreen_canvas.Fill(150,0,0)
+                        elif secondsUntilNextEvent < 10 and secondsUntilNextEvent > 0:
+                            if secondsUntilNextEvent % 2:
+                                self.offscreen_canvas.Fill(0,60,0)
+                        self.line3="-"+str(int(secondsUntilNextEvent/60))+":"+str(secondsUntilNextEvent%60).zfill(2)
+                        self.countDownDisplay(color=graphics.Color(160,160,0))
+                    else:
+                        secondsSinceNextEvent=(datetime.now()-nextEvent["start"]).seconds
+                        if secondsSinceNextEvent < 5:
+                            self.offscreen_canvas.Fill(0,100,0)
+                        elif secondsSinceNextEvent > 120:
+                            self.mode="bigClock"
+                        self.line3="+"+str(int(secondsSinceNextEvent/60))+":"+str(secondsSinceNextEvent%60).zfill(2)
+                        self.countDownDisplay(font=font610, color=graphics.Color(0,80,0))
+
+
+                    self.clockLineR()
+                    self.line1=nextEvent["subject"]
+                    self.staticLine1(font=font610, ypos=7, color = graphics.Color(0, 0, 255),overScroll=16)
+                    # self.countDownDisplay()
+
+                    if(secondsUntilNextEvent%60 < 15):
+                        self.line2="Org:"+nextEvent["organizer"]
+                    else:
+                        self.line2=nextEvent["attendees"]
+                    
+                    self.staticLine2(font=font46, ypos=15, color = graphics.Color(50, 50, 50),overScroll=27)
+
+
+
+
+                    # self.scrollCounter +=1 
+                    # self.scrollLine1()
+
+
+                else:
+                    self.offscreen_canvas.Clear()
+                if self.newCommand:
+                    self.newCommand=False
+
+            except:
                 self.offscreen_canvas.Clear()
+                self.newCommand=False
+                continue
+
             
+                
             offscreen_canvas=self.matrix.SwapOnVSync(self.offscreen_canvas)
     
-    def bigClock(self):   
-        graphics.DrawText(self.offscreen_canvas, font46, 17, 5, graphics.Color(128, 128, ), datetime.now().strftime('%A %b %d').upper())
+    def bigClock(self):
+        if datetime.now().weekday() == 0 or datetime.now().weekday() == 3 or datetime.now().weekday() == 6:
+                graphics.DrawText(self.offscreen_canvas, font46, 21, 5, graphics.Color(128, 128,0), datetime.now().strftime('%A %b %d').upper())
+        else:
+                graphics.DrawText(self.offscreen_canvas, font46, 17, 5, graphics.Color(128, 128, 0 ), datetime.now().strftime('%A %b %d').upper())
+
         graphics.DrawText(self.offscreen_canvas, fontHR12, 24, 16, graphics.Color(128, 128, 128), datetime.now().strftime('%H:%M:%S'))
+
+    def clockLineR(self):
+        graphics.DrawText(self.offscreen_canvas, font46, 65, 5, graphics.Color(128, 128, 128), datetime.now().strftime('%H:%M:%S'))
+    
+    def countDownDisplay(self,font=font610,color=graphics.Color(255,255,0)):
+        graphics.DrawText(self.offscreen_canvas, font610, 65, 15, color,(self.line3 or ""))
 
     def clockLine(self):
         graphics.DrawText(self.offscreen_canvas, font46, 6, 5, textColor, datetime.now().strftime('%a %m/%d   %H:%M:%S'))
         
-    def staticLine1(self, font=font58, color=textColor):
-        graphics.DrawText(self.offscreen_canvas, font46, 0, 5, textColor,(self.line1 or ""))
+    def staticLine1(self, font=font46, ypos=5, color=textColor, overScroll=30, delay=1, reset=False):
+        if overScroll and len(self.line1)>overScroll:
+            self.line1pos, self.line1len
+            self.line1len = len(self.line1)
+            if reset:
+                self.line1pos=1
+            if self.scrollCounter % delay == 0:
+                self.line1pos -= 1
+                if (self.line1pos + (self.line1len*4) < 0):
+                    self.line1pos = self.offscreen_canvas.width            
+        else:
+            self.line1pos = 0
+        
+        graphics.DrawText(self.offscreen_canvas, font, self.line1pos, ypos, color,(self.line1 or ""))
+        if reset:
+            time.sleep(2)
 
-    def staticLine2(self, font=font46, color=textColor):
-        graphics.DrawText(self.offscreen_canvas, font, 0, 14, color,(self.line2 or ""))
+    def staticLine2(self, font=font46, ypos= 14, color=textColor, overScroll=16, delay=1, reset=False):
+        if overScroll and len(self.line2)>overScroll:
+            self.line2pos, self.line2len
+                # self.line2pos = 32
+            self.line2len = len(self.line2)
+            if reset:
+                # self.line2pos = self.offscreen_canvas.width
+                self.line2pos=1
+            if self.scrollCounter % delay == 0:
+                self.line2pos -= 1
+                if (self.line2pos + (self.line2len*6) < 0):
+                    # print("~~~~~~~~~~~~~repos")
+                    self.line2pos = self.offscreen_canvas.width            
+        else:
+            self.line2pos = 0
+        
+        # print(self.line2pos)
+        # print(self.line2len)
+        # print("--")
+        graphics.DrawText(self.offscreen_canvas, font, self.line2pos, ypos, color,(self.line2 or ""))
+        if reset:
+            time.sleep(2)
+        # if self.line2pos == -1:
+        #     print("hang here")
+        #     time.sleep(2)
+        #     print("hang done")
+        #     self.line2pos -= 1
         # graphics.DrawText(self.offscreen_canvas, font46, 0, 10, textColor,(self.line2 or ""))
 
     def staticLine3(self):
