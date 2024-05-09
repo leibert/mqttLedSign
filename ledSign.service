@@ -1,0 +1,11 @@
+[Unit]
+Description=Run LED Sign
+
+[Service]
+Type=Simple
+Restart=Always
+User=root
+ExecStart=python /home/pi/mqttLedSign/mqttSign.py --led-chain=3 --led-rows=16
+
+[Install]
+WantedBy=multi-user.target
