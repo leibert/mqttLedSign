@@ -17,7 +17,7 @@ from datetime import datetime
 
 mqttBroker ="albany.local"
 client = mqtt.Client("LED Sign")
-client.username_pw_set("mqtt", password="VZh%&u2eQc9VN@9S")
+client.username_pw_set("mqtt", password="PW")
 
 
 
