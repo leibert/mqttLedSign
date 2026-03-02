@@ -1,23 +1,48 @@
-# sudo python mqttSign.py --led-chain=3 --led-rows=16
+"""mqttSign.py
 
+Control an RGB LED matrix panel via MQTT messages. Designed to run on a
+Raspberry Pi with the `rpi-rgb-led-matrix` library installed. The
+script subscribes to several topics and updates the display accordingly.
+
+Before running, create a `.env` file with appropriate MQTT settings or
+export the variables directly in the environment. A sample file is
+included as `env.sample` in the project root.
+
+Usage: sudo python mqttSign.py --led-chain=3 --led-rows=16
+"""
+
+# bring configuration values from environment (dotenv is optional)
+import os
+from datetime import datetime, timedelta
 import sys
+
+# allow imports from the rpi-rgb-led-matrix python bindings
 sys.path.append('/home/pi/rpi-rgb-led-matrix/bindings/python')
 
 from cgitb import text
-
 from samples.samplebase import SampleBase
 from rgbmatrix import graphics
 
-
-# from samplebase import SampleBase
-# from rgbmatrix import graphics
+# MQTT client library
 import paho.mqtt.client as mqtt
 import time
-from datetime import datetime,timedelta
 
-mqttBroker ="mqtt"
+# load environment variables from a .env file if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv is optional; can use plain os.environ
+    pass
+
+# mqtt configuration comes from env vars; defaults are for a container
+mqttBroker = os.getenv("MQTT_BROKER", "mqtt")
+mqttUsername = os.getenv("MQTT_USERNAME", "mqtt")
+mqttPassword = os.getenv("MQTT_PASSWORD", "")
+
 client = mqtt.Client("LED Sign")
-client.username_pw_set("mqtt", password="pw")
+if mqttUsername or mqttPassword:
+    client.username_pw_set(mqttUsername, password=mqttPassword)
 
 
 
@@ -70,15 +95,21 @@ nextEvent["attendees"]=None
 nextEvent["isExternal"]=None
 
 def on_message(client, userdata, msg):
-    global textColor
-    
+    """Callback invoked when an MQTT message is received.
 
+    Depending on the topic the message updates attributes on the running
+    sign instance or adjusts global state such as color or the next-event
+    dictionary. Topics are under `ledSign/` and `nextEvent/` prefixes.
+    """
+    global textColor
+
+    # log incoming messages for debugging
     print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
     topic = msg.topic
     print(topic)
     if topic == "ledSign/line1":
         run_text.line1 = msg.payload.decode()
-        print("updated line1 to: "+ line1)
+        print("updated line1 to: " + run_text.line1)
 
     elif topic == "ledSign/line2":
         run_text.line2 = msg.payload.decode()
@@ -139,11 +170,14 @@ def on_message(client, userdata, msg):
 
 
 def on_connect(client, userdata, flags, rc):
+    """MQTT connection callback.
+
+    Once connected successfully we subscribe to the topics we care about
+    so that any disconnections/reconnections will automatically resubscribe.
+    """
     print("Connected with result code "+str(rc))
 
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-#    client.subscribe("$SYS/#")
+    # subscribe to all sign and event topics
     client.subscribe("ledSign/#")
     client.subscribe("nextEvent/#")
 
@@ -153,9 +187,18 @@ def on_connect(client, userdata, flags, rc):
     
 
 class RunSign(SampleBase):
-    
-    offscreen_canvas=None
-    scrollCounter=0
+    """Main application class controlling the LED matrix display.
+
+    Inherits from `SampleBase` provided by the rpi-rgb-led-matrix samples.
+    Attributes are used to track the current display mode, text lines, and
+    scrolling position. The `run` method contains the primary loop that
+    updates the display based on the current mode and any commands received
+    via MQTT.
+    """
+
+    # canvas we draw to before swapping
+    offscreen_canvas = None
+    scrollCounter = 0
 
     mode = "bigClock"
     displayEnabled = True
@@ -185,7 +228,13 @@ class RunSign(SampleBase):
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
 
     def run(self):
-        
+        """Entry point for the sign's main loop.
+
+        Called by `SampleBase.process()`, this method initializes the
+        offscreen canvas and then enters an endless loop where it updates the
+        display every 0.1 seconds according to `self.mode`. Modes include
+        clock displays, scrolling text, static lines, and event countdowns.
+        """
         self.offscreen_canvas = self.matrix.CreateFrameCanvas()
         print("A2")
         line1_pos = self.offscreen_canvas.width
@@ -310,75 +359,86 @@ class RunSign(SampleBase):
         graphics.DrawText(self.offscreen_canvas, font610, 65, 15, color,(self.line3 or ""))
 
     def clockLine(self):
-        graphics.DrawText(self.offscreen_canvas, font46, 6, 5, textColor, datetime.now().strftime('%a %m/%d   %H:%M:%S'))
-        
+        """Simple clock mode: draw abbreviated weekday, date, and time."""
+        graphics.DrawText(
+            self.offscreen_canvas, font46, 6, 5, textColor,
+            datetime.now().strftime('%a %m/%d   %H:%M:%S')
+        )
     def staticLine1(self, font=font46, ypos=5, color=textColor, overScroll=30, delay=1, reset=False):
-        if overScroll and len(self.line1)>overScroll:
+        """Draw the first line of text; scroll if it overflows.
+
+        Parameters mirror those used for line2 below. `reset` will reposition
+        scrolling to the start and pause briefly so a change is visible.
+        """
+        if overScroll and len(self.line1) > overScroll:
             self.line1pos, self.line1len
             self.line1len = len(self.line1)
             if reset:
-                self.line1pos=1
+                self.line1pos = 1
             if self.scrollCounter % delay == 0:
                 self.line1pos -= 1
-                if (self.line1pos + (self.line1len*4) < 0):
+                if (self.line1pos + (self.line1len * 4) < 0):
                     self.line1pos = self.offscreen_canvas.width            
         else:
             self.line1pos = 0
         
-        graphics.DrawText(self.offscreen_canvas, font, self.line1pos, ypos, color,(self.line1 or ""))
+        graphics.DrawText(self.offscreen_canvas, font, self.line1pos, ypos, color, (self.line1 or ""))
         if reset:
             time.sleep(2)
 
-    def staticLine2(self, font=font46, ypos= 14, color=textColor, overScroll=16, delay=1, reset=False):
-        if overScroll and len(self.line2)>overScroll:
+    def staticLine2(self, font=font46, ypos=14, color=textColor, overScroll=16, delay=1, reset=False):
+        """Draw the second line of text; scrolling behaviour is similar to
+        staticLine1 but uses a wider character spacing (6 pixels).
+        """
+        if overScroll and len(self.line2) > overScroll:
             self.line2pos, self.line2len
-                # self.line2pos = 32
+            # self.line2pos = 32
             self.line2len = len(self.line2)
             if reset:
                 # self.line2pos = self.offscreen_canvas.width
-                self.line2pos=1
+                self.line2pos = 1
             if self.scrollCounter % delay == 0:
                 self.line2pos -= 1
-                if (self.line2pos + (self.line2len*6) < 0):
+                if (self.line2pos + (self.line2len * 6) < 0):
                     # print("~~~~~~~~~~~~~repos")
                     self.line2pos = self.offscreen_canvas.width            
         else:
             self.line2pos = 0
         
-        # print(self.line2pos)
-        # print(self.line2len)
-        # print("--")
-        graphics.DrawText(self.offscreen_canvas, font, self.line2pos, ypos, color,(self.line2 or ""))
+        graphics.DrawText(self.offscreen_canvas, font, self.line2pos, ypos, color, (self.line2 or ""))
         if reset:
             time.sleep(2)
-        # if self.line2pos == -1:
-        #     print("hang here")
-        #     time.sleep(2)
-        #     print("hang done")
-        #     self.line2pos -= 1
-        # graphics.DrawText(self.offscreen_canvas, font46, 0, 10, textColor,(self.line2 or ""))
 
     def staticLine3(self):
         graphics.DrawText(self.offscreen_canvas, font46, 0, 15, textColor,(self.line3 or ""))
 
     def scrollLine1(self, delay=100, reset=False):
+        """Scroll the first line continuously across the display.
+
+        `delay` controls the scroll speed. When `reset` is True the text is
+        repositioned to the right edge before scrolling begins.
+        """
         self.line1pos, self.line1len
         if reset:
             self.line1pos = self.offscreen_canvas.width
-        if self.scrollCounter % delay ==0:
+        if self.scrollCounter % delay == 0:
             self.line1pos -= 1
             if (self.line1pos + self.line1len < 0):
                 self.line1pos = self.offscreen_canvas.width
 
-        self.line1len = graphics.DrawText(self.offscreen_canvas, font46, self.line1pos, 5, textColor, self.line1)
-        
+        self.line1len = graphics.DrawText(
+            self.offscreen_canvas, font46, self.line1pos, 5, textColor, self.line1
+        )
+
 # Main function
 if __name__ == "__main__":
+    # configure MQTT callbacks and connect to broker
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(mqttBroker, 1883)
-    mqttLoop=client.loop_start()
+    mqttLoop = client.loop_start()  # start network loop in background
 
+    # instantiate and run the LED sign application
     run_text = RunSign()
-    if (not run_text.process()):
+    if not run_text.process():
         run_text.print_help()

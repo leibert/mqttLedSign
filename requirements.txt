@@ -1,0 +1,4 @@
+# Python dependencies for mqttLedSign
+# rpi-rgb-led-matrix is installed separately from its GitHub repository
+paho-mqtt>=1.6.1
+python-dotenv>=1.0.0

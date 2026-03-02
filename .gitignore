@@ -1,1 +1,3 @@
 __pycache__/samplebase.cpython-39.pyc
+# local environment variables
+.env
