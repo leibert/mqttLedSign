@@ -17,9 +17,11 @@ from datetime import datetime, timedelta
 import sys
 
 # allow imports from the rpi-rgb-led-matrix python bindings
-sys.path.append('/home/pi/rpi-rgb-led-matrix/bindings/python')
+##sys.path.append('/home/pi/rpi-rgb-led-matrix/bindings/python')
 
-from cgitb import text
+from rgbmatrix import RGBMatrix, RGBMatrixOptions
+
+#from cgitb import text
 from samples.samplebase import SampleBase
 from rgbmatrix import graphics
 
@@ -40,7 +42,7 @@ mqttBroker = os.getenv("MQTT_BROKER", "mqtt")
 mqttUsername = os.getenv("MQTT_USERNAME", "mqtt")
 mqttPassword = os.getenv("MQTT_PASSWORD", "")
 
-client = mqtt.Client("LED Sign")
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1,"LED Sign")
 if mqttUsername or mqttPassword:
     client.username_pw_set(mqttUsername, password=mqttPassword)
 
