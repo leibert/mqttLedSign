@@ -5,7 +5,7 @@ Description=Run LED Sign
 Type=Simple
 Restart=Always
 User=root
-ExecStart=sudo /home/pi/mqttLedSign/venv/bin/python mqttSign.py --led-chain=3 --led-rows=16
+ExecStart=/home/pi/mqttLedSign/venv/bin/python mqttSign.py --led-chain=3 --led-rows=16
 
 [Install]
 WantedBy=multi-user.target
